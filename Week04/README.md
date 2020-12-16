@@ -1,6 +1,7 @@
 学习笔记
 # 工程项目结构
 ## Layout
+- **先了解一下[Standard Go Project Layout](https://github.com/golang-standards/project-layout/blob/master/README_zh.md)吧**
 - 初始化的工具，自动生成项目，用工具约束
 - /cmd 里放 项目文件夹（与可执行文件名字相同）main.go的文件
 - /cmd 里不放太多代码，不对外 。只服务启动，关闭，配置，初始化，日志，listerhttp，监听信号

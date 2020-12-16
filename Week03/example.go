@@ -4,18 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-project-layout/server/http"
+	"golang.org/x/sync/errgroup"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"golang.org/x/sync/errgroup"
 )
 
 func main() {
 	g, ctx := errgroup.WithContext(context.Background())
-	svr := http.NewServer()
+	svr := http.Server{}
 	// http server
 	g.Go(func() error {
 		fmt.Println("http")
@@ -24,14 +23,14 @@ func main() {
 			fmt.Println("http ctx done")
 			svr.Shutdown(context.TODO())
 		}()
-		return svr.Start()
+		return svr.ListenAndServe()
 	})
-
-	// signal
+	// single
 	g.Go(func() error {
-		exitSignals := []os.Signal{os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT} // SIGTERM is POSIX specific
-		sig := make(chan os.Signal, len(exitSignals))
-		signal.Notify(sig, exitSignals...)
+		exitSignal := []os.Signal{os.Interrupt, syscall.SIGTERM,
+			syscall.SIGQUIT, syscall.SIGINT}
+		sig := make(chan os.Signal, len(exitSignal))
+		signal.Notify(sig, exitSignal...)
 		for {
 			fmt.Println("signal")
 			select {
@@ -53,6 +52,5 @@ func main() {
 		return errors.New("inject error")
 	})
 
-	err := g.Wait() // first error return
-	fmt.Println(err)
+	fmt.Println(g.Wait())
 }
